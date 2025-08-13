@@ -28,8 +28,8 @@
 - [x] Receipts CRUD operations
 - [x] Expenditures management with budget inclusion
 - [x] Transfers between wallets
-- [ ] Budgets planning interface
-- [ ] Auto-payments setup and management
+- [x] Budgets planning interface
+- [x] Auto-payments setup and management
 
 ## Reports & Analytics
 - [x] Cash flow summary dashboard
