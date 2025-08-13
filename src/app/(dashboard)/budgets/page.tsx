@@ -8,6 +8,13 @@ import { PlusIcon, Edit2Icon, TrashIcon, SearchIcon } from "lucide-react"
 import Link from "next/link"
 import { formatCurrency, formatDate } from "@/lib/formatters"
 import { CashFlowItemService } from "@/services/cash-flow-item-service"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 
 export default function BudgetsPage() {
   const [budgets, setBudgets] = useState<Budget[]>([])
@@ -22,6 +29,19 @@ export default function BudgetsPage() {
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
   const [budgetType, setBudgetType] = useState<'income' | 'expense' | null>(null)
+  const [selectedCategoryId, setSelectedCategoryId] = useState("")
+  const [amountMin, setAmountMin] = useState("")
+  const [amountMax, setAmountMax] = useState("")
+
+  const handleResetFilters = () => {
+    setSearchTerm("")
+    setDateFrom("")
+    setDateTo("")
+    setBudgetType(null)
+    setSelectedCategoryId("")
+    setAmountMin("")
+    setAmountMax("")
+  }
 
   const fetchAllData = async () => {
     setIsLoading(true)
@@ -68,14 +88,21 @@ export default function BudgetsPage() {
     const searchMatch = searchTerm === "" || 
       budget.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       categoryMap[budget.cash_flow_item]?.toLowerCase().includes(searchTerm.toLowerCase())
+
+    // By category
+    const categoryMatch = !selectedCategoryId || budget.cash_flow_item === selectedCategoryId
     
     // Filter by date from
     const dateFromMatch = !dateFrom || new Date(budget.date) >= new Date(dateFrom)
     
     // Filter by date to
     const dateToMatch = !dateTo || new Date(budget.date) <= new Date(dateTo)
+
+    // Amount range
+    const amountMinMatch = !amountMin || budget.amount >= parseFloat(amountMin)
+    const amountMaxMatch = !amountMax || budget.amount <= parseFloat(amountMax)
     
-    return searchMatch && dateFromMatch && dateToMatch
+    return searchMatch && categoryMatch && dateFromMatch && dateToMatch && amountMinMatch && amountMaxMatch
   })
   
   // Sort by date (newest first)
@@ -167,6 +194,48 @@ export default function BudgetsPage() {
                 </Button>
               </div>
             </div>
+          </div>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Категория</label>
+              <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Все категории" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(categoryMap).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="amountMin" className="block text-sm font-medium mb-1">Сумма от</label>
+              <input
+                type="number"
+                id="amountMin"
+                value={amountMin}
+                onChange={(e) => setAmountMin(e.target.value)}
+                className="w-full border rounded-md px-3 py-2"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+            <div>
+              <label htmlFor="amountMax" className="block text-sm font-medium mb-1">Сумма до</label>
+              <input
+                type="number"
+                id="amountMax"
+                value={amountMax}
+                onChange={(e) => setAmountMax(e.target.value)}
+                className="w-full border rounded-md px-3 py-2"
+                placeholder="∞"
+                min="0"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button variant="outline" onClick={handleResetFilters}>Сбросить фильтры</Button>
           </div>
         </CardContent>
       </Card>

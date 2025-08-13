@@ -8,6 +8,13 @@ import { PlusIcon, Edit2Icon, TrashIcon, SearchIcon, CheckCircleIcon, XCircleIco
 import Link from "next/link"
 import { formatDate } from "@/lib/formatters"
 import { Badge } from "@/components/ui/badge"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -17,6 +24,7 @@ export default function ProjectsPage() {
   // Search and filter
   const [searchTerm, setSearchTerm] = useState("")
   const [activeFilter, setActiveFilter] = useState<boolean | null>(null)
+  const [sortBy, setSortBy] = useState<'name' | 'created_at'>('name')
   
   const fetchProjects = async () => {
     setIsLoading(true)
@@ -66,8 +74,11 @@ export default function ProjectsPage() {
     return searchMatch
   })
   
-  // Sort by name
-  const sortedProjects = [...filteredProjects].sort((a, b) => a.name.localeCompare(b.name))
+  // Sort
+  const sortedProjects = [...filteredProjects].sort((a, b) => {
+    if (sortBy === 'name') return a.name.localeCompare(b.name)
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  })
 
   return (
     <div>
@@ -92,7 +103,7 @@ export default function ProjectsPage() {
           <CardTitle className="text-lg">Фильтры</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label htmlFor="search" className="block text-sm font-medium mb-1">Поиск</label>
               <div className="relative">
@@ -132,6 +143,18 @@ export default function ProjectsPage() {
                   Все
                 </Button>
               </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Сортировка</label>
+              <Select value={sortBy} onValueChange={(v: 'name' | 'created_at') => setSortBy(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">По названию</SelectItem>
+                  <SelectItem value="created_at">По дате создания</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </CardContent>

@@ -11,11 +11,11 @@
 - [x] Login page
 - [x] JWT token management
 - [x] Protected routes
-- [x] User profile page
+- [ ] User profile page
 
 ## Layout & Navigation
 - [x] Main layout with sidebar navigation
-- [x] Responsive header with user menu
+- [ ] Responsive header with user menu
 - [ ] Breadcrumbs navigation
 - [x] Dashboard layout
 
@@ -44,6 +44,8 @@
 - [x] Mobile responsive design
 - [x] Dark/light theme support
 - [ ] Performance optimization
+ - [x] Enhanced filtering and search functionality
+- [ ] Copy/duplicate functionality for all entities
 
 ## Testing & Deployment
 - [ ] Unit testing key components

@@ -8,6 +8,13 @@ import { PlusIcon, Edit2Icon, TrashIcon, SearchIcon, ArrowRightIcon } from "luci
 import Link from "next/link"
 import { formatCurrency, formatDate } from "@/lib/formatters"
 import { WalletService } from "@/services/wallet-service"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 
 export default function TransfersPage() {
   const [transfers, setTransfers] = useState<Transfer[]>([])
@@ -21,6 +28,20 @@ export default function TransfersPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
+  const [walletFromId, setWalletFromId] = useState("")
+  const [walletToId, setWalletToId] = useState("")
+  const [amountMin, setAmountMin] = useState("")
+  const [amountMax, setAmountMax] = useState("")
+
+  const handleResetFilters = () => {
+    setSearchTerm("")
+    setDateFrom("")
+    setDateTo("")
+    setWalletFromId("")
+    setWalletToId("")
+    setAmountMin("")
+    setAmountMax("")
+  }
 
   const fetchAllData = async () => {
     setIsLoading(true)
@@ -69,13 +90,21 @@ export default function TransfersPage() {
       walletMap[transfer.wallet_from]?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       walletMap[transfer.wallet_to]?.toLowerCase().includes(searchTerm.toLowerCase())
     
+    // By wallets
+    const walletFromMatch = !walletFromId || transfer.wallet_from === walletFromId
+    const walletToMatch = !walletToId || transfer.wallet_to === walletToId
+
     // Filter by date from
     const dateFromMatch = !dateFrom || new Date(transfer.date) >= new Date(dateFrom)
     
     // Filter by date to
     const dateToMatch = !dateTo || new Date(transfer.date) <= new Date(dateTo)
+
+    // Amount range
+    const amountMinMatch = !amountMin || transfer.amount >= parseFloat(amountMin)
+    const amountMaxMatch = !amountMax || transfer.amount <= parseFloat(amountMax)
     
-    return searchMatch && dateFromMatch && dateToMatch
+    return searchMatch && walletFromMatch && walletToMatch && dateFromMatch && dateToMatch && amountMinMatch && amountMaxMatch
   })
   
   // Sort by date (newest first)
@@ -141,6 +170,61 @@ export default function TransfersPage() {
                 className="w-full border rounded-md px-3 py-2"
               />
             </div>
+          </div>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Откуда</label>
+              <Select value={walletFromId} onValueChange={setWalletFromId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Все" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(walletMap).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Куда</label>
+              <Select value={walletToId} onValueChange={setWalletToId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Все" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(walletMap).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label htmlFor="amountMin" className="block text-sm font-medium mb-1">Сумма от</label>
+              <input
+                type="number"
+                id="amountMin"
+                value={amountMin}
+                onChange={(e) => setAmountMin(e.target.value)}
+                className="w-full border rounded-md px-3 py-2"
+                placeholder="0"
+                min="0"
+              />
+            </div>
+            <div>
+              <label htmlFor="amountMax" className="block text-sm font-medium mb-1">Сумма до</label>
+              <input
+                type="number"
+                id="amountMax"
+                value={amountMax}
+                onChange={(e) => setAmountMax(e.target.value)}
+                className="w-full border rounded-md px-3 py-2"
+                placeholder="∞"
+                min="0"
+              />
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button variant="outline" onClick={handleResetFilters}>Сбросить фильтры</Button>
           </div>
         </CardContent>
       </Card>

@@ -9,6 +9,13 @@ import Link from "next/link"
 import { formatCurrency, formatDate } from "@/lib/formatters"
 import { WalletService } from "@/services/wallet-service"
 import { CashFlowItemService } from "@/services/cash-flow-item-service"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 
 export default function AutoPaymentsPage() {
   const [autoPayments, setAutoPayments] = useState<AutoPayment[]>([])
@@ -22,6 +29,21 @@ export default function AutoPaymentsPage() {
   // Search and filter
   const [searchTerm, setSearchTerm] = useState("")
   const [isTransfer, setIsTransfer] = useState<boolean | null>(null)
+  const [walletFromId, setWalletFromId] = useState("")
+  const [walletToId, setWalletToId] = useState("")
+  const [categoryId, setCategoryId] = useState("")
+  const [amountMin, setAmountMin] = useState("")
+  const [amountMax, setAmountMax] = useState("")
+
+  const handleResetFilters = () => {
+    setSearchTerm("")
+    setIsTransfer(null)
+    setWalletFromId("")
+    setWalletToId("")
+    setCategoryId("")
+    setAmountMin("")
+    setAmountMax("")
+  }
 
   const fetchAllData = async () => {
     setIsLoading(true)
@@ -78,8 +100,17 @@ export default function AutoPaymentsPage() {
       walletMap[autoPayment.wallet_from]?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (autoPayment.wallet_to && walletMap[autoPayment.wallet_to]?.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (autoPayment.cash_flow_item && categoryMap[autoPayment.cash_flow_item]?.toLowerCase().includes(searchTerm.toLowerCase()))
-    
-    return searchMatch
+
+    // Select filters
+    const walletFromMatch = !walletFromId || autoPayment.wallet_from === walletFromId
+    const walletToMatch = !walletToId || autoPayment.wallet_to === walletToId
+    const categoryMatch = !categoryId || autoPayment.cash_flow_item === categoryId
+
+    // Amount
+    const amountMinMatch = !amountMin || autoPayment.amount >= parseFloat(amountMin)
+    const amountMaxMatch = !amountMax || autoPayment.amount <= parseFloat(amountMax)
+
+    return searchMatch && walletFromMatch && walletToMatch && categoryMatch && amountMinMatch && amountMaxMatch
   })
   
   // Sort by next date (soonest first)
@@ -160,6 +191,76 @@ export default function AutoPaymentsPage() {
                 </Button>
               </div>
             </div>
+          </div>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Откуда</label>
+              <Select value={walletFromId} onValueChange={setWalletFromId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Все" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(walletMap).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Куда</label>
+              <Select value={walletToId} onValueChange={setWalletToId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Все" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(walletMap).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Категория</label>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Все категории" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.entries(categoryMap).map(([id, name]) => (
+                    <SelectItem key={id} value={id}>{name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="amountMin" className="block text-sm font-medium mb-1">Сумма от</label>
+                <input
+                  type="number"
+                  id="amountMin"
+                  value={amountMin}
+                  onChange={(e) => setAmountMin(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div>
+                <label htmlFor="amountMax" className="block text-sm font-medium mb-1">Сумма до</label>
+                <input
+                  type="number"
+                  id="amountMax"
+                  value={amountMax}
+                  onChange={(e) => setAmountMax(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2"
+                  placeholder="∞"
+                  min="0"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <Button variant="outline" onClick={handleResetFilters}>Сбросить фильтры</Button>
           </div>
         </CardContent>
       </Card>
