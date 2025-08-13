@@ -22,7 +22,7 @@
 ## Reference Management
 - [x] Wallets list and detail pages
 - [x] Cash flow items management with hierarchy view
-- [ ] Projects management
+- [x] Projects management
 
 ## Financial Operations
 - [x] Receipts CRUD operations
