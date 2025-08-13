@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import ReceiptForm from "@/components/shared/receipt-form"
 import { ReceiptService, Receipt } from "@/services/financial-operations-service"
 
-export default function NewReceiptPage() {
+function Inner() {
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get("duplicate")
   const [duplicateEntity, setDuplicateEntity] = useState<Receipt | null>(null)
@@ -24,4 +24,12 @@ export default function NewReceiptPage() {
   }, [duplicateId])
 
   return <ReceiptForm receipt={duplicateEntity || undefined} />
+}
+
+export default function NewReceiptPage() {
+  return (
+    <Suspense fallback={null}>
+      <Inner />
+    </Suspense>
+  )
 }

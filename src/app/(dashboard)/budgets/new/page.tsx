@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import BudgetForm from "@/components/shared/budget-form"
 import { BudgetService, Budget } from "@/services/financial-operations-service"
 
-export default function NewBudgetPage() {
+function Inner() {
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get("duplicate")
   const [duplicateEntity, setDuplicateEntity] = useState<Budget | null>(null)
@@ -24,4 +24,12 @@ export default function NewBudgetPage() {
   }, [duplicateId])
 
   return <BudgetForm budget={duplicateEntity || undefined} />
+}
+
+export default function NewBudgetPage() {
+  return (
+    <Suspense fallback={null}>
+      <Inner />
+    </Suspense>
+  )
 }

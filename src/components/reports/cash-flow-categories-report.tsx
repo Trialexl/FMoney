@@ -217,60 +217,62 @@ export default function CashFlowCategoriesReport({ dateFrom, dateTo }: CashFlowC
           ) : categoryExpenses.length > 0 ? (
             <div className="h-[500px]" ref={chartRef}>
               <ResponsiveContainer width="100%" height="100%">
-                {viewType === "pie" && (
-                  <PieChart>
-                    <Pie
+                {viewType === "pie"
+                  ? (
+                    <PieChart>
+                      <Pie
+                        data={categoryExpenses}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={180}
+                        fill="#8884d8"
+                        dataKey="amount"
+                        nameKey="name"
+                        label={({name, percent}) => `${name}: ${percent.toFixed(0)}%`}
+                      >
+                        {categoryExpenses.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip formatter={formatTooltip} />
+                      <Legend layout="vertical" align="right" verticalAlign="middle" />
+                    </PieChart>
+                  )
+                  : viewType === "treemap"
+                  ? (
+                    <Treemap
                       data={categoryExpenses}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={180}
-                      fill="#8884d8"
                       dataKey="amount"
                       nameKey="name"
-                      label={({name, percent}) => `${name}: ${percent.toFixed(0)}%`}
+                      aspectRatio={4/3}
+                      stroke="#fff"
+                      fill="#8884d8"
                     >
                       {categoryExpenses.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
-                    </Pie>
-                    <Tooltip formatter={formatTooltip} />
-                    <Legend layout="vertical" align="right" verticalAlign="middle" />
-                  </PieChart>
-                )}
-                {viewType === "treemap" && (
-                  <Treemap
-                    data={categoryExpenses}
-                    dataKey="amount"
-                    nameKey="name"
-                    aspectRatio={4/3}
-                    stroke="#fff"
-                    fill="#8884d8"
-                  >
-                    {categoryExpenses.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                    <Tooltip formatter={formatTooltip} />
-                  </Treemap>
-                )}
-                {viewType === "bar" && (
-                  <BarChart
-                    data={topCategories}
-                    layout="vertical"
-                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis 
-                      type="category" 
-                      dataKey="name" 
-                      width={100} 
-                      tick={{ fontSize: 12 }} 
-                    />
-                    <Tooltip formatter={formatTooltip} />
-                    <Bar dataKey="amount" fill="#f87171" />
-                  </BarChart>
-                )}
+                      <Tooltip formatter={formatTooltip} />
+                    </Treemap>
+                  )
+                  : (
+                    <BarChart
+                      data={topCategories}
+                      layout="vertical"
+                      margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis 
+                        type="category" 
+                        dataKey="name" 
+                        width={100} 
+                        tick={{ fontSize: 12 }} 
+                      />
+                      <Tooltip formatter={formatTooltip} />
+                      <Bar dataKey="amount" fill="#f87171" />
+                    </BarChart>
+                  )}
               </ResponsiveContainer>
             </div>
           ) : (

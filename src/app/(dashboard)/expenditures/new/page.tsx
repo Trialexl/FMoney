@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import ExpenditureForm from "@/components/shared/expenditure-form"
 import { ExpenditureService, Expenditure } from "@/services/financial-operations-service"
 
-export default function NewExpenditurePage() {
+function Inner() {
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get("duplicate")
   const [duplicateEntity, setDuplicateEntity] = useState<Expenditure | null>(null)
@@ -24,4 +24,12 @@ export default function NewExpenditurePage() {
   }, [duplicateId])
 
   return <ExpenditureForm expenditure={duplicateEntity || undefined} />
+}
+
+export default function NewExpenditurePage() {
+  return (
+    <Suspense fallback={null}>
+      <Inner />
+    </Suspense>
+  )
 }

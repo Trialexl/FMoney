@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import WalletForm from "@/components/shared/wallet-form"
 import { WalletService, Wallet } from "@/services/wallet-service"
 
-export default function NewWalletPage() {
+function Inner() {
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get("duplicate")
   const [duplicateEntity, setDuplicateEntity] = useState<Wallet | null>(null)
@@ -22,6 +22,13 @@ export default function NewWalletPage() {
     }
     loadDuplicate()
   }, [duplicateId])
-
   return <WalletForm wallet={duplicateEntity || undefined} />
+}
+
+export default function NewWalletPage() {
+  return (
+    <Suspense fallback={null}>
+      <Inner />
+    </Suspense>
+  )
 }

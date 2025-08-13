@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import TransferForm from "@/components/shared/transfer-form"
 import { TransferService, Transfer } from "@/services/financial-operations-service"
 
-export default function NewTransferPage() {
+function Inner() {
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get("duplicate")
   const [duplicateEntity, setDuplicateEntity] = useState<Transfer | null>(null)
@@ -24,4 +24,12 @@ export default function NewTransferPage() {
   }, [duplicateId])
 
   return <TransferForm transfer={duplicateEntity || undefined} />
+}
+
+export default function NewTransferPage() {
+  return (
+    <Suspense fallback={null}>
+      <Inner />
+    </Suspense>
+  )
 }

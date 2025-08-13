@@ -1,16 +1,16 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { WalletService } from "@/services/wallet-service"
-import { ExpenditureService, ReceiptService, TransferService } from "@/services/financial-operations-service"
+import { WalletService, Wallet } from "@/services/wallet-service"
+import { ExpenditureService, ReceiptService, Expenditure, Receipt } from "@/services/financial-operations-service"
 import { Card } from "@/components/ui/card"
 
 export default function DashboardPage() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [wallets, setWallets] = useState([])
-  const [recentExpenses, setRecentExpenses] = useState([])
-  const [recentIncomes, setRecentIncomes] = useState([])
-  const [totalBalance, setTotalBalance] = useState(0)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [wallets, setWallets] = useState<Wallet[]>([])
+  const [recentExpenses, setRecentExpenses] = useState<Expenditure[]>([])
+  const [recentIncomes, setRecentIncomes] = useState<Receipt[]>([])
+  const [totalBalance, setTotalBalance] = useState<number>(0)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -93,7 +93,7 @@ export default function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentExpenses.map((expense: any) => (
+                    {recentExpenses.map((expense: Expenditure) => (
                       <tr key={expense.id} className="border-b">
                         <td className="py-2">{new Date(expense.date).toLocaleDateString('ru-RU')}</td>
                         <td className="py-2 text-red-500">{expense.amount.toLocaleString('ru-RU')} ₽</td>
@@ -122,7 +122,7 @@ export default function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentIncomes.map((income: any) => (
+                    {recentIncomes.map((income: Receipt) => (
                       <tr key={income.id} className="border-b">
                         <td className="py-2">{new Date(income.date).toLocaleDateString('ru-RU')}</td>
                         <td className="py-2 text-green-500">{income.amount.toLocaleString('ru-RU')} ₽</td>

@@ -1,8 +1,5 @@
-import Papa from 'papaparse'
-import { saveAs } from 'file-saver'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import html2canvas from 'html2canvas'
+// Note: heavy browser-only libs are imported dynamically inside functions
+// to avoid SSR/prerender issues
 import { formatCurrency, formatDate } from './formatters'
 
 // Типы экспортируемых данных
@@ -19,7 +16,11 @@ export type ExportColumn = {
  * @param columns Описание колонок
  * @param filename Имя файла
  */
-export const exportToCSV = (data: ExportDataRow[], columns: ExportColumn[], filename: string) => {
+export const exportToCSV = async (data: ExportDataRow[], columns: ExportColumn[], filename: string) => {
+  const [{ default: Papa }, { saveAs }] = await Promise.all([
+    import('papaparse'),
+    import('file-saver'),
+  ])
   // Подготовка данных в формате для CSV
   const csvData = data.map(row => {
     const newRow: Record<string, string> = {}
@@ -47,12 +48,16 @@ export const exportToCSV = (data: ExportDataRow[], columns: ExportColumn[], file
  * @param filename Имя файла
  * @param title Заголовок отчета
  */
-export const exportToPDF = (
+export const exportToPDF = async (
   data: ExportDataRow[],
   columns: ExportColumn[],
   filename: string,
   title: string
 ) => {
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import('jspdf'),
+    import('jspdf-autotable'),
+  ])
   // Создание PDF документа
   const doc = new jsPDF('p', 'mm', 'a4')
   
@@ -74,7 +79,7 @@ export const exportToPDF = (
   })
   
   // Генерация таблицы
-  autoTable(doc, {
+  autoTable(doc as any, {
     startY: 35,
     head: [tableColumn],
     body: tableRows,
@@ -100,7 +105,11 @@ export const exportChartToPDF = async (
   title: string
 ) => {
   if (!chartRef.current) return
-  
+  const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+    import('jspdf'),
+    import('html2canvas'),
+  ])
+
   // Создание скриншота диаграммы
   const canvas = await html2canvas(chartRef.current, {
     scale: 2,

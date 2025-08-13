@@ -1,11 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import AutoPaymentForm from "@/components/shared/auto-payment-form"
 import { AutoPaymentService, AutoPayment } from "@/services/financial-operations-service"
 
-export default function NewAutoPaymentPage() {
+function Inner() {
   const searchParams = useSearchParams()
   const duplicateId = searchParams.get("duplicate")
   const [duplicateEntity, setDuplicateEntity] = useState<AutoPayment | null>(null)
@@ -24,4 +24,12 @@ export default function NewAutoPaymentPage() {
   }, [duplicateId])
 
   return <AutoPaymentForm autoPayment={duplicateEntity || undefined} />
+}
+
+export default function NewAutoPaymentPage() {
+  return (
+    <Suspense fallback={null}>
+      <Inner />
+    </Suspense>
+  )
 }
