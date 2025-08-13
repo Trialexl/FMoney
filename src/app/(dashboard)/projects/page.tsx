@@ -203,12 +203,17 @@ export default function ProjectsPage() {
                       Создан: {formatDate(project.created_at)}
                     </p>
                   </CardContent>
-                  <div className="border-t bg-muted/50 p-3 flex justify-end gap-2">
+                    <div className="border-t bg-muted/50 p-3 flex justify-end gap-2">
                     <Link href={`/projects/${project.id}/edit`}>
                       <Button variant="outline" size="sm">
                         <Edit2Icon className="h-4 w-4 mr-1" /> Редактировать
                       </Button>
                     </Link>
+                      <Link href={`/projects/new?duplicate=${project.id}`}>
+                        <Button variant="outline" size="sm">
+                          ⧉ Дублировать
+                        </Button>
+                      </Link>
                     <Button 
                       variant="outline"
                       size="sm"

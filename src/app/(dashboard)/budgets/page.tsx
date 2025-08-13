@@ -285,6 +285,11 @@ export default function BudgetsPage() {
                               <Edit2Icon className="h-4 w-4" />
                             </Button>
                           </Link>
+                          <Link href={`/budgets/new?duplicate=${budget.id}`}>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Дублировать">
+                              ⧉
+                            </Button>
+                          </Link>
                           <Button
                             variant="ghost"
                             size="sm"

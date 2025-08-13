@@ -45,7 +45,7 @@
 - [x] Dark/light theme support
 - [ ] Performance optimization
  - [x] Enhanced filtering and search functionality
-- [ ] Copy/duplicate functionality for all entities
+ - [x] Copy/duplicate functionality for all entities
 
 ## Testing & Deployment
 - [ ] Unit testing key components
