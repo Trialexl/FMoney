@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { WalletService } from "@/services/wallet-service"
 import { 
@@ -13,6 +13,8 @@ import {
 } from "recharts"
 import { formatCurrency } from "@/lib/formatters"
 import { Wallet as WalletIcon, ArrowUp, ArrowDown } from "lucide-react"
+import ExportReportButtons from "./export-report-buttons"
+import { exportFormatters } from "@/lib/export-utils"
 
 interface WalletWithBalance {
   id: string
@@ -29,6 +31,9 @@ export default function WalletBalancesReport() {
   const [totalBalance, setTotalBalance] = useState(0)
   const [positiveTotal, setPositiveTotal] = useState(0)
   const [negativeTotal, setNegativeTotal] = useState(0)
+  
+  // Ref для экспорта графика
+  const pieChartRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -162,12 +167,26 @@ export default function WalletBalancesReport() {
             <CardTitle>Распределение положительных балансов</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="flex justify-between items-center mb-4">
+              <ExportReportButtons 
+                data={sortedWallets}
+                columns={[
+                  { key: 'name', header: 'Название кошелька' },
+                  { key: 'balance', header: 'Баланс', formatter: exportFormatters.currency },
+                  { key: 'percentage', header: 'Доля', formatter: exportFormatters.percent }
+                ]}
+                filename="wallet-balances-report"
+                title="Отчет по балансам кошельков"
+                chartRef={pieChartRef}
+              />
+            </div>
+            
             {isLoading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="text-lg">Загрузка данных...</div>
               </div>
             ) : positiveWallets.length > 0 ? (
-              <div className="h-80">
+              <div className="h-80" ref={pieChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie

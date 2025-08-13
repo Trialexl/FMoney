@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { ReceiptService, ExpenditureService } from "@/services/financial-operations-service"
 import {
@@ -16,6 +16,8 @@ import {
   Line,
 } from "recharts"
 import { formatCurrency } from "@/lib/formatters"
+import ExportReportButtons from "./export-report-buttons"
+import { exportFormatters } from "@/lib/export-utils"
 
 interface IncomeExpenseReportProps {
   dateFrom: string
@@ -30,6 +32,10 @@ export default function IncomeExpenseReport({ dateFrom, dateTo }: IncomeExpenseR
   const [barChartData, setBarChartData] = useState<any[]>([])
   const [lineChartData, setLineChartData] = useState<any[]>([])
   const [viewType, setViewType] = useState<"daily" | "monthly">("daily")
+  
+  // Refs для экспорта графиков
+  const barChartRef = useRef<HTMLDivElement>(null)
+  const lineChartRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -188,7 +194,20 @@ export default function IncomeExpenseReport({ dateFrom, dateTo }: IncomeExpenseR
         </Card>
       </div>
       
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center">
+        <ExportReportButtons 
+          data={barChartData}
+          columns={[
+            { key: 'date', header: 'Дата', formatter: exportFormatters.date },
+            { key: 'income', header: 'Доходы', formatter: exportFormatters.currency },
+            { key: 'expense', header: 'Расходы', formatter: exportFormatters.currency },
+            { key: 'balance', header: 'Баланс', formatter: exportFormatters.currency }
+          ]}
+          filename="income-expense-report"
+          title="Отчет по доходам и расходам"
+          chartRef={barChartRef}
+        />
+        
         <button 
           onClick={toggleViewType}
           className="px-3 py-1 text-xs bg-muted rounded-md hover:bg-muted/80"
@@ -209,7 +228,7 @@ export default function IncomeExpenseReport({ dateFrom, dateTo }: IncomeExpenseR
               <div className="text-lg">Загрузка данных...</div>
             </div>
           ) : (
-            <div className="h-80">
+            <div className="h-80" ref={barChartRef}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={barChartData}
@@ -245,7 +264,7 @@ export default function IncomeExpenseReport({ dateFrom, dateTo }: IncomeExpenseR
               <div className="text-lg">Загрузка данных...</div>
             </div>
           ) : (
-            <div className="h-80">
+            <div className="h-80" ref={lineChartRef}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={lineChartData}

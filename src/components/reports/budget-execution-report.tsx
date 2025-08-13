@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { 
   BudgetService, 
@@ -25,6 +25,8 @@ import {
 import { formatCurrency } from "@/lib/formatters"
 import { Badge } from "@/components/ui/badge"
 import { AlertCircleIcon, CheckCircleIcon, XCircleIcon } from "lucide-react"
+import ExportReportButtons from "./export-report-buttons"
+import { exportFormatters } from "@/lib/export-utils"
 
 interface BudgetExecutionReportProps {
   dateFrom: string
@@ -47,6 +49,10 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>([])
   const [totalBudget, setTotalBudget] = useState({ income: 0, expense: 0 })
   const [totalActual, setTotalActual] = useState({ income: 0, expense: 0 })
+  
+  // Refs для экспорта графиков
+  const incomeChartRef = useRef<HTMLDivElement>(null)
+  const expenseChartRef = useRef<HTMLDivElement>(null)
   
   useEffect(() => {
     const fetchData = async () => {
@@ -331,8 +337,19 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Income Budget Chart */}
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 flex flex-row justify-between items-start">
             <CardTitle>Исполнение бюджета доходов по категориям</CardTitle>
+            <ExportReportButtons 
+              data={incomeBudgetData}
+              columns={[
+                { key: 'name', header: 'Категория' },
+                { key: 'budget', header: 'План', formatter: exportFormatters.currency },
+                { key: 'actual', header: 'Факт', formatter: exportFormatters.currency }
+              ]}
+              filename="income-budget-execution-report"
+              title="Исполнение бюджета доходов"
+              chartRef={incomeChartRef}
+            />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -340,7 +357,7 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
                 <div className="text-lg">Загрузка данных...</div>
               </div>
             ) : incomeBudgetData.length > 0 ? (
-              <div className="h-80">
+              <div className="h-80" ref={incomeChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={incomeBudgetData}
@@ -372,8 +389,19 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
         
         {/* Expense Budget Chart */}
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 flex flex-row justify-between items-start">
             <CardTitle>Исполнение бюджета расходов по категориям</CardTitle>
+            <ExportReportButtons 
+              data={expenseBudgetData}
+              columns={[
+                { key: 'name', header: 'Категория' },
+                { key: 'budget', header: 'План', formatter: exportFormatters.currency },
+                { key: 'actual', header: 'Факт', formatter: exportFormatters.currency }
+              ]}
+              filename="expense-budget-execution-report"
+              title="Исполнение бюджета расходов"
+              chartRef={expenseChartRef}
+            />
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -381,7 +409,7 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
                 <div className="text-lg">Загрузка данных...</div>
               </div>
             ) : expenseBudgetData.length > 0 ? (
-              <div className="h-80">
+              <div className="h-80" ref={expenseChartRef}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={expenseBudgetData}
@@ -414,8 +442,21 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
       
       {/* Budget Execution Table */}
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 flex flex-row justify-between items-start">
           <CardTitle>Детализация исполнения бюджета</CardTitle>
+          <ExportReportButtons 
+            data={budgetItems}
+            columns={[
+              { key: 'name', header: 'Категория' },
+              { key: 'type', header: 'Тип', formatter: (type) => type === 'income' ? 'Доход' : 'Расход' },
+              { key: 'budgetAmount', header: 'План', formatter: exportFormatters.currency },
+              { key: 'actualAmount', header: 'Факт', formatter: exportFormatters.currency },
+              { key: 'difference', header: 'Разница', formatter: exportFormatters.currency },
+              { key: 'executionPercent', header: 'Исполнение, %', formatter: exportFormatters.percent }
+            ]}
+            filename="budget-execution-details"
+            title="Детализация исполнения бюджета"
+          />
         </CardHeader>
         <CardContent>
           {isLoading ? (

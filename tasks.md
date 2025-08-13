@@ -36,7 +36,7 @@
 - [x] Budget execution reports
 - [x] Financial charts and graphs
 - [x] Balance overview by wallet
-- [ ] Export functionality
+- [x] Export functionality
 
 ## Advanced Features
 - [ ] Financial planning calendar view

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { ExpenditureService } from "@/services/financial-operations-service"
 import { CashFlowItemService } from "@/services/cash-flow-item-service"
@@ -20,6 +20,8 @@ import {
 } from "recharts"
 import { formatCurrency } from "@/lib/formatters"
 import { Button } from "@/components/ui/button"
+import ExportReportButtons from "./export-report-buttons"
+import { exportFormatters } from "@/lib/export-utils"
 
 interface CashFlowCategoriesReportProps {
   dateFrom: string
@@ -40,6 +42,9 @@ export default function CashFlowCategoriesReport({ dateFrom, dateTo }: CashFlowC
   const [categoryExpenses, setCategoryExpenses] = useState<CategoryExpense[]>([])
   const [totalExpense, setTotalExpense] = useState(0)
   const [viewType, setViewType] = useState<"pie" | "treemap" | "bar">("pie")
+  
+  // Refs для экспорта графиков
+  const chartRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -158,28 +163,42 @@ export default function CashFlowCategoriesReport({ dateFrom, dateTo }: CashFlowC
         </CardContent>
       </Card>
       
-      <div className="flex justify-end space-x-2">
-        <Button 
-          variant={viewType === "pie" ? "default" : "outline"} 
-          size="sm" 
-          onClick={() => setViewType("pie")}
-        >
-          Круговая диаграмма
-        </Button>
-        <Button 
-          variant={viewType === "treemap" ? "default" : "outline"} 
-          size="sm" 
-          onClick={() => setViewType("treemap")}
-        >
-          Карта категорий
-        </Button>
-        <Button 
-          variant={viewType === "bar" ? "default" : "outline"} 
-          size="sm" 
-          onClick={() => setViewType("bar")}
-        >
-          Топ 10
-        </Button>
+      <div className="flex justify-between items-center">
+        <ExportReportButtons 
+          data={categoryExpenses}
+          columns={[
+            { key: 'name', header: 'Категория' },
+            { key: 'amount', header: 'Сумма', formatter: exportFormatters.currency },
+            { key: 'percentage', header: 'Доля', formatter: exportFormatters.percent }
+          ]}
+          filename="expenses-by-category-report"
+          title="Отчет по категориям расходов"
+          chartRef={chartRef}
+        />
+        
+        <div className="flex space-x-2">
+          <Button 
+            variant={viewType === "pie" ? "default" : "outline"} 
+            size="sm" 
+            onClick={() => setViewType("pie")}
+          >
+            Круговая диаграмма
+          </Button>
+          <Button 
+            variant={viewType === "treemap" ? "default" : "outline"} 
+            size="sm" 
+            onClick={() => setViewType("treemap")}
+          >
+            Карта категорий
+          </Button>
+          <Button 
+            variant={viewType === "bar" ? "default" : "outline"} 
+            size="sm" 
+            onClick={() => setViewType("bar")}
+          >
+            Топ 10
+          </Button>
+        </div>
       </div>
       
       <Card>
@@ -196,7 +215,7 @@ export default function CashFlowCategoriesReport({ dateFrom, dateTo }: CashFlowC
               <div className="text-lg">Загрузка данных...</div>
             </div>
           ) : categoryExpenses.length > 0 ? (
-            <div className="h-[500px]">
+            <div className="h-[500px]" ref={chartRef}>
               <ResponsiveContainer width="100%" height="100%">
                 {viewType === "pie" && (
                   <PieChart>
