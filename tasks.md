@@ -26,8 +26,8 @@
 
 ## Financial Operations
 - [x] Receipts CRUD operations
-- [ ] Expenditures management with budget inclusion
-- [ ] Transfers between wallets
+- [x] Expenditures management with budget inclusion
+- [x] Transfers between wallets
 - [ ] Budgets planning interface
 - [ ] Auto-payments setup and management
 
