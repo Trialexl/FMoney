@@ -1,7 +1,7 @@
 import Papa from 'papaparse'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import autoTable from 'jspdf-autotable'
 import html2canvas from 'html2canvas'
 import { formatCurrency, formatDate } from './formatters'
 
@@ -74,7 +74,7 @@ export const exportToPDF = (
   })
   
   // Генерация таблицы
-  doc.autoTable({
+  autoTable(doc, {
     startY: 35,
     head: [tableColumn],
     body: tableRows,
