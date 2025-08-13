@@ -33,8 +33,8 @@
 
 ## Reports & Analytics
 - [x] Cash flow summary dashboard
-- [ ] Budget execution reports
-- [ ] Financial charts and graphs
+- [x] Budget execution reports
+- [x] Financial charts and graphs
 - [x] Balance overview by wallet
 - [ ] Export functionality
 
