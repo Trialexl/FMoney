@@ -18,6 +18,8 @@
 - [ ] Responsive header with user menu
  - [ ] Breadcrumbs navigation
 - [x] Dashboard layout
+- [x] раздел фильтры в списках выглядят  плохо. 
+- [x] необходимо обовить версии next.js и tailwind
 
 ## Reference Management
 - [x] Wallets list and detail pages
