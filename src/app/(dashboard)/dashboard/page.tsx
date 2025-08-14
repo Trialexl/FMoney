@@ -14,6 +14,8 @@ export default function DashboardPage() {
   const [totalBalance, setTotalBalance] = useState<number>(0)
   const [walletBalances, setWalletBalances] = useState<Record<string, number>>({})
   const [showAllWallets, setShowAllWallets] = useState<boolean>(false)
+  const [spentToday, setSpentToday] = useState<number>(0)
+  const [spentThisMonth, setSpentThisMonth] = useState<number>(0)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -23,20 +25,17 @@ export default function DashboardPage() {
         const walletsData = await WalletService.getWallets()
         setWallets(walletsData)
 
-        // Calculate total balance and per-wallet balances
+        // Calculate per-wallet balances
         const balancesMap: Record<string, number> = {}
-        let total = 0
         for (const wallet of walletsData) {
           try {
             const balanceData = await WalletService.getWalletBalance(wallet.id)
             balancesMap[wallet.id] = balanceData.balance
-            total += balanceData.balance
           } catch (error) {
             console.error(`Error fetching balance for wallet ${wallet.id}:`, error)
           }
         }
         setWalletBalances(balancesMap)
-        setTotalBalance(total)
 
         // Fetch recent expenses and incomes
         const expensesData = await ExpenditureService.getExpenditures()
@@ -49,6 +48,23 @@ export default function DashboardPage() {
         setRecentIncomes(
           incomesData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5)
         )
+
+        // Spending stats
+        const now = new Date()
+        const isSameDay = (d: Date, ref: Date) =>
+          d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth() && d.getDate() === ref.getDate()
+        const isSameMonth = (d: Date, ref: Date) =>
+          d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth()
+
+        let todaySum = 0
+        let monthSum = 0
+        for (const exp of expensesData) {
+          const d = new Date(exp.date)
+          if (isSameDay(d, now)) todaySum += exp.amount
+          if (isSameMonth(d, now)) monthSum += exp.amount
+        }
+        setSpentToday(todaySum)
+        setSpentThisMonth(monthSum)
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
       } finally {
@@ -58,6 +74,16 @@ export default function DashboardPage() {
 
     fetchDashboardData()
   }, [])
+
+  // Recompute total balance based on toggle and loaded balances
+  useEffect(() => {
+    const sum = wallets.reduce((acc, wallet) => {
+      if (!showAllWallets && wallet.hidden) return acc
+      const balance = walletBalances[wallet.id] ?? 0
+      return acc + balance
+    }, 0)
+    setTotalBalance(sum)
+  }, [showAllWallets, wallets, walletBalances])
 
   return (
     <div>
@@ -69,25 +95,9 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Summary Cards */}
-          <Card className="p-6">
-            <h3 className="text-lg font-medium mb-2">Общий баланс</h3>
-            <p className="text-3xl font-bold">{totalBalance.toLocaleString('ru-RU')} ₽</p>
-          </Card>
-          
-          <Card className="p-6">
-            <h3 className="text-lg font-medium mb-2">Кошельки</h3>
-            <p className="text-3xl font-bold">{wallets.length}</p>
-          </Card>
-          
-          <Card className="p-6">
-            <h3 className="text-lg font-medium mb-2">Последние операции</h3>
-            <p className="text-3xl font-bold">{recentExpenses.length + recentIncomes.length}</p>
-          </Card>
-
-          {/* Wallet Balances (minimal list) */}
-          <Card className="p-6 md:col-span-3">
-            <div className="flex items-center justify-between mb-4">
+          {/* Балансы кошельков (вверху, на две колонки) */}
+          <Card className="p-6 md:col-span-2">
+            <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-medium">Балансы кошельков</h3>
               <Button
                 variant="outline"
@@ -119,6 +129,37 @@ export default function DashboardPage() {
               )
             })()}
           </Card>
+
+          {/* Summary Cards */}
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-2">Общий баланс</h3>
+            <p className="text-3xl font-bold">{totalBalance.toLocaleString('ru-RU')} ₽</p>
+          </Card>
+          
+          {/* Compact stats widget: wallets count + latest ops count */}
+          <Card className="p-6">
+            <h3 className="text-lg font-medium mb-4">Статистика</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Кошельки</p>
+                <p className="text-2xl font-semibold">{wallets.length}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Последние операции</p>
+                <p className="text-2xl font-semibold">{recentExpenses.length + recentIncomes.length}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">За день потрачено</p>
+                <p className="text-2xl font-semibold text-red-500">{spentToday.toLocaleString('ru-RU')} ₽</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">За месяц потрачено</p>
+                <p className="text-2xl font-semibold text-red-500">{spentThisMonth.toLocaleString('ru-RU')} ₽</p>
+              </div>
+            </div>
+          </Card>
+
+          
           
           {/* Recent Expenses */}
           <Card className="p-6 md:col-span-3">
