@@ -6,8 +6,11 @@ import ExpenditureForm from "@/components/shared/expenditure-form"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
-export default function EditExpenditurePage({ params }: { params: { id: string } }) {
+export default function EditExpenditurePage() {
+  const params = useParams()
+  const idParam = Array.isArray((params as any)?.id) ? (params as any).id[0] : (params as any)?.id
   const [expenditure, setExpenditure] = useState<Expenditure | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -15,7 +18,8 @@ export default function EditExpenditurePage({ params }: { params: { id: string }
   useEffect(() => {
     const fetchExpenditure = async () => {
       try {
-        const data = await ExpenditureService.getExpenditure(params.id)
+        if (!idParam) return
+        const data = await ExpenditureService.getExpenditure(idParam as string)
         setExpenditure(data)
       } catch (err: any) {
         setError("Ошибка при загрузке расхода: " + (err.message || "Неизвестная ошибка"))
@@ -25,7 +29,7 @@ export default function EditExpenditurePage({ params }: { params: { id: string }
     }
 
     fetchExpenditure()
-  }, [params.id])
+  }, [idParam])
 
   if (isLoading) {
     return <div className="text-center py-12">Загрузка...</div>

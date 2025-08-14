@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useParams } from "next/navigation"
 import { WalletService, Wallet, WalletBalance } from "@/services/wallet-service"
 import { ExpenditureService, ReceiptService } from "@/services/financial-operations-service"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Edit2Icon, Wallet as WalletIcon, ArrowLeftIcon, PlusIcon } from "lucide-react"
 import Link from "next/link"
 
-export default function WalletDetailPage({ params }: { params: { id: string } }) {
+export default function WalletDetailPage() {
+  const params = useParams()
+  const idParam = Array.isArray((params as any)?.id) ? (params as any).id[0] : (params as any)?.id
   const router = useRouter()
   const [wallet, setWallet] = useState<Wallet | null>(null)
   const [balance, setBalance] = useState<WalletBalance | null>(null)
@@ -24,11 +26,12 @@ export default function WalletDetailPage({ params }: { params: { id: string } })
       
       try {
         // Fetch wallet details
-        const walletData = await WalletService.getWallet(params.id)
+        if (!idParam) return
+        const walletData = await WalletService.getWallet(idParam as string)
         setWallet(walletData)
         
         // Fetch wallet balance
-        const balanceData = await WalletService.getWalletBalance(params.id)
+        const balanceData = await WalletService.getWalletBalance(idParam as string)
         setBalance(balanceData)
         
         // Fetch recent operations
@@ -39,11 +42,11 @@ export default function WalletDetailPage({ params }: { params: { id: string } })
         
         // Filter operations for this wallet and combine
         const walletReceipts = receipts
-          .filter((r: any) => r.wallet === params.id)
+          .filter((r: any) => r.wallet === idParam)
           .map((r: any) => ({ ...r, type: 'receipt' }))
         
         const walletExpenditures = expenditures
-          .filter((e: any) => e.wallet === params.id)
+          .filter((e: any) => e.wallet === idParam)
           .map((e: any) => ({ ...e, type: 'expenditure' }))
         
         // Combine and sort by date
@@ -60,7 +63,7 @@ export default function WalletDetailPage({ params }: { params: { id: string } })
     }
     
     fetchWalletData()
-  }, [params.id])
+  }, [idParam])
 
   if (isLoading) {
     return <div className="text-center py-12">Загрузка...</div>

@@ -6,8 +6,11 @@ import AutoPaymentForm from "@/components/shared/auto-payment-form"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
-export default function EditAutoPaymentPage({ params }: { params: { id: string } }) {
+export default function EditAutoPaymentPage() {
+  const params = useParams()
+  const idParam = Array.isArray((params as any)?.id) ? (params as any).id[0] : (params as any)?.id
   const [autoPayment, setAutoPayment] = useState<AutoPayment | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -15,7 +18,8 @@ export default function EditAutoPaymentPage({ params }: { params: { id: string }
   useEffect(() => {
     const fetchAutoPayment = async () => {
       try {
-        const data = await AutoPaymentService.getAutoPayment(params.id)
+        if (!idParam) return
+        const data = await AutoPaymentService.getAutoPayment(idParam as string)
         setAutoPayment(data)
       } catch (err: any) {
         setError("Ошибка при загрузке автоплатежа: " + (err.message || "Неизвестная ошибка"))
@@ -25,7 +29,7 @@ export default function EditAutoPaymentPage({ params }: { params: { id: string }
     }
 
     fetchAutoPayment()
-  }, [params.id])
+  }, [idParam])
 
   if (isLoading) {
     return <div className="text-center py-12">Загрузка...</div>

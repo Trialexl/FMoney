@@ -6,8 +6,11 @@ import ReceiptForm from "@/components/shared/receipt-form"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
-export default function EditReceiptPage({ params }: { params: { id: string } }) {
+export default function EditReceiptPage() {
+  const params = useParams()
+  const idParam = Array.isArray((params as any)?.id) ? (params as any).id[0] : (params as any)?.id
   const [receipt, setReceipt] = useState<Receipt | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -15,7 +18,8 @@ export default function EditReceiptPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchReceipt = async () => {
       try {
-        const data = await ReceiptService.getReceipt(params.id)
+        if (!idParam) return
+        const data = await ReceiptService.getReceipt(idParam as string)
         setReceipt(data)
       } catch (err: any) {
         setError("Ошибка при загрузке прихода: " + (err.message || "Неизвестная ошибка"))
@@ -25,7 +29,7 @@ export default function EditReceiptPage({ params }: { params: { id: string } }) 
     }
 
     fetchReceipt()
-  }, [params.id])
+  }, [idParam])
 
   if (isLoading) {
     return <div className="text-center py-12">Загрузка...</div>

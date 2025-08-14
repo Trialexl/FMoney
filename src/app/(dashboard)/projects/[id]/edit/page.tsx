@@ -6,8 +6,11 @@ import ProjectForm from "@/components/shared/project-form"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
-export default function EditProjectPage({ params }: { params: { id: string } }) {
+export default function EditProjectPage() {
+  const params = useParams()
+  const idParam = Array.isArray((params as any)?.id) ? (params as any).id[0] : (params as any)?.id
   const [project, setProject] = useState<Project | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -15,7 +18,8 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const data = await ProjectService.getProject(params.id)
+        if (!idParam) return
+        const data = await ProjectService.getProject(idParam as string)
         setProject(data)
       } catch (err: any) {
         setError("Ошибка при загрузке проекта: " + (err.message || "Неизвестная ошибка"))
@@ -25,7 +29,7 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
     }
 
     fetchProject()
-  }, [params.id])
+  }, [idParam])
 
   if (isLoading) {
     return <div className="text-center py-12">Загрузка...</div>

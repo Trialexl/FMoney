@@ -4,7 +4,11 @@ import { useState, useEffect } from "react"
 import { WalletService, Wallet } from "@/services/wallet-service"
 import WalletForm from "@/components/shared/wallet-form"
 
-export default function EditWalletPage({ params }: { params: { id: string } }) {
+import { useParams } from "next/navigation"
+
+export default function EditWalletPage() {
+  const params = useParams()
+  const idParam = Array.isArray((params as any)?.id) ? (params as any).id[0] : (params as any)?.id
   const [wallet, setWallet] = useState<Wallet | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -12,7 +16,8 @@ export default function EditWalletPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchWallet = async () => {
       try {
-        const data = await WalletService.getWallet(params.id)
+        if (!idParam) return
+        const data = await WalletService.getWallet(idParam as string)
         setWallet(data)
       } catch (err: any) {
         setError("Ошибка при загрузке кошелька: " + (err.message || "Неизвестная ошибка"))
@@ -22,7 +27,7 @@ export default function EditWalletPage({ params }: { params: { id: string } }) {
     }
 
     fetchWallet()
-  }, [params.id])
+  }, [idParam])
 
   if (isLoading) {
     return <div className="text-center py-12">Загрузка...</div>

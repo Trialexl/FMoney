@@ -6,8 +6,11 @@ import TransferForm from "@/components/shared/transfer-form"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftIcon } from "lucide-react"
 import Link from "next/link"
+import { useParams } from "next/navigation"
 
-export default function EditTransferPage({ params }: { params: { id: string } }) {
+export default function EditTransferPage() {
+  const params = useParams()
+  const idParam = Array.isArray((params as any)?.id) ? (params as any).id[0] : (params as any)?.id
   const [transfer, setTransfer] = useState<Transfer | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -15,7 +18,8 @@ export default function EditTransferPage({ params }: { params: { id: string } })
   useEffect(() => {
     const fetchTransfer = async () => {
       try {
-        const data = await TransferService.getTransfer(params.id)
+        if (!idParam) return
+        const data = await TransferService.getTransfer(idParam as string)
         setTransfer(data)
       } catch (err: any) {
         setError("Ошибка при загрузке перевода: " + (err.message || "Неизвестная ошибка"))
@@ -25,7 +29,7 @@ export default function EditTransferPage({ params }: { params: { id: string } })
     }
 
     fetchTransfer()
-  }, [params.id])
+  }, [idParam])
 
   if (isLoading) {
     return <div className="text-center py-12">Загрузка...</div>
