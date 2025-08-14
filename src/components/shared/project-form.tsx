@@ -17,8 +17,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
   
   // Form fields
   const [name, setName] = useState(project?.name || "")
-  const [description, setDescription] = useState(project?.description || "")
-  const [isActive, setIsActive] = useState(project?.is_active ?? true)
+  const [code, setCode] = useState(project?.code || "")
   
   // UI state
   const [error, setError] = useState<string | null>(null)
@@ -39,8 +38,7 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
 
       const projectData: Partial<Project> = {
         name,
-        description: description || undefined,
-        is_active: isActive
+        code: code || undefined,
       }
 
       if (isEdit && project) {
@@ -86,24 +84,15 @@ export default function ProjectForm({ project, isEdit = false }: ProjectFormProp
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="description">Описание (необязательно)</Label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
+          <Label htmlFor="code">Код (необязательно)</Label>
+          <input
+            id="code"
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
-            placeholder="Введите описание проекта"
+            placeholder="Код проекта"
           />
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Switch 
-            id="is-active" 
-            checked={isActive} 
-            onCheckedChange={setIsActive}
-          />
-          <Label htmlFor="is-active">Активный проект</Label>
         </div>
 
         <div className="flex space-x-4">

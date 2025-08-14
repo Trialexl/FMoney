@@ -27,6 +27,7 @@ export default function ReceiptForm({ receipt, isEdit = false }: ReceiptFormProp
   const defaultWalletId = searchParams.get("wallet") || receipt?.wallet || ""
   
   // Form fields
+  const [number, setNumber] = useState(receipt?.number || "")
   const [amount, setAmount] = useState(receipt?.amount?.toString() || "")
   const [date, setDate] = useState(receipt?.date ? formatDateForInput(new Date(receipt.date)) : formatDateForInput())
   const [description, setDescription] = useState(receipt?.description || "")
@@ -84,6 +85,7 @@ export default function ReceiptForm({ receipt, isEdit = false }: ReceiptFormProp
       }
 
       const receiptData: Partial<Receipt> = {
+        number: number || undefined,
         amount: parseFloat(amount),
         date,
         description: description || undefined,
@@ -122,6 +124,17 @@ export default function ReceiptForm({ receipt, isEdit = false }: ReceiptFormProp
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="number">Номер</Label>
+            <input
+              id="number"
+              type="text"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              placeholder="Номер документа"
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="amount" className="required">Сумма</Label>
             <input
@@ -218,14 +231,14 @@ export default function ReceiptForm({ receipt, isEdit = false }: ReceiptFormProp
             <div className="text-sm text-muted-foreground">Загрузка проектов...</div>
           ) : (
             <Select
-              value={projectId}
-              onValueChange={setProjectId}
+              value={projectId || "none"}
+              onValueChange={(value) => setProjectId(value === "none" ? "" : value)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Выберите проект" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Не указано</SelectItem>
+                <SelectItem value="none">Не указано</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}

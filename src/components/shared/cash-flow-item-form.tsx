@@ -22,7 +22,8 @@ interface CashFlowItemFormProps {
 export default function CashFlowItemForm({ item, parentId, isEdit = false }: CashFlowItemFormProps) {
   const router = useRouter()
   const [name, setName] = useState(item?.name || "")
-  const [description, setDescription] = useState(item?.description || "")
+  const [code, setCode] = useState(item?.code || "")
+  const [includeInBudget, setIncludeInBudget] = useState<boolean>(item?.include_in_budget ?? false)
   const [parent, setParent] = useState(item?.parent || parentId || "")
   const [allItems, setAllItems] = useState<CashFlowItem[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -56,11 +57,12 @@ export default function CashFlowItemForm({ item, parentId, isEdit = false }: Cas
     setIsLoading(true)
 
     try {
-      const data: Partial<CashFlowItem> = {
-        name,
-        description: description || undefined,
-        parent: parent || undefined
-      }
+        const data: Partial<CashFlowItem> = {
+          name,
+          code: code || undefined,
+          include_in_budget: includeInBudget,
+          parent: parent || undefined
+        }
 
       if (isEdit && item) {
         await CashFlowItemService.updateCashFlowItem(item.id, data)
@@ -105,14 +107,14 @@ export default function CashFlowItemForm({ item, parentId, isEdit = false }: Cas
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="description">Описание (необязательно)</Label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
+          <Label htmlFor="code">Код (необязательно)</Label>
+          <input
+            id="code"
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
-            placeholder="Введите описание статьи"
+            placeholder="Код"
           />
         </div>
 
@@ -122,14 +124,14 @@ export default function CashFlowItemForm({ item, parentId, isEdit = false }: Cas
             <div className="text-sm text-muted-foreground">Загрузка статей...</div>
           ) : (
             <Select
-              value={parent}
-              onValueChange={setParent}
+              value={parent || "none"}
+              onValueChange={(value) => setParent(value === "none" ? "" : value)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Выберите родительскую статью" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Нет (корневая статья)</SelectItem>
+                <SelectItem value="none">Нет (корневая статья)</SelectItem>
                 {allItems.map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     {item.name}
@@ -138,6 +140,16 @@ export default function CashFlowItemForm({ item, parentId, isEdit = false }: Cas
               </SelectContent>
             </Select>
           )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            id="includeInBudget"
+            type="checkbox"
+            checked={includeInBudget}
+            onChange={(e) => setIncludeInBudget(e.target.checked)}
+          />
+          <Label htmlFor="includeInBudget">Включать в бюджет по умолчанию</Label>
         </div>
 
         <div className="flex space-x-4">

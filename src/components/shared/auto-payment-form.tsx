@@ -27,6 +27,7 @@ export default function AutoPaymentForm({ autoPayment, isEdit = false }: AutoPay
   const router = useRouter()
   
   // Form fields
+  const [number, setNumber] = useState(autoPayment?.number || "")
   const [amount, setAmount] = useState(autoPayment?.amount?.toString() || "")
   const [nextDate, setNextDate] = useState(autoPayment?.next_date ? formatDateForInput(new Date(autoPayment.next_date)) : formatDateForInput())
   const [description, setDescription] = useState(autoPayment?.description || "")
@@ -131,6 +132,7 @@ export default function AutoPaymentForm({ autoPayment, isEdit = false }: AutoPay
       }
 
       const autoPaymentData: Partial<AutoPayment> = {
+        number: number || undefined,
         amount: parseFloat(amount),
         next_date: nextDate,
         description: description || undefined,
@@ -189,6 +191,17 @@ export default function AutoPaymentForm({ autoPayment, isEdit = false }: AutoPay
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="number">Номер</Label>
+            <input
+              id="number"
+              type="text"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              placeholder="Номер документа"
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="amount" className="required">Сумма</Label>
             <input

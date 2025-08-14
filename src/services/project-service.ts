@@ -3,33 +3,49 @@ import api from "@/lib/api"
 export interface Project {
   id: string
   name: string
-  description?: string
+  code?: string | null
   created_at: string
   updated_at: string
   deleted: boolean
-  is_active: boolean
 }
 
 export const ProjectService = {
   getProjects: async (isActive?: boolean) => {
-    const params = isActive !== undefined ? { is_active: isActive } : {}
-    const response = await api.get<Project[]>("/projects/", { params })
-    return response.data
+    // API не поддерживает is_active; возвращаем список как есть
+    const { data } = await api.get<any[]>("/projects/")
+    return data.map((p) => ({
+      id: p.id,
+      name: p.name,
+      code: p.code ?? null,
+      created_at: p.created_at,
+      updated_at: p.updated_at,
+      deleted: !!p.deleted,
+    })) as Project[]
   },
 
   getProject: async (id: string) => {
-    const response = await api.get<Project>(`/projects/${id}/`)
-    return response.data
+    const { data: p } = await api.get<any>(`/projects/${id}/`)
+    const mapped: Project = {
+      id: p.id,
+      name: p.name,
+      code: p.code ?? null,
+      created_at: p.created_at,
+      updated_at: p.updated_at,
+      deleted: !!p.deleted,
+    }
+    return mapped
   },
 
   createProject: async (data: Partial<Project>) => {
-    const response = await api.post<Project>("/projects/", data)
-    return response.data
+    const payload = { name: data.name, code: data.code }
+    const response = await api.post<any>("/projects/", payload)
+    return ProjectService.getProject(response.data.id)
   },
 
   updateProject: async (id: string, data: Partial<Project>) => {
-    const response = await api.put<Project>(`/projects/${id}/`, data)
-    return response.data
+    const payload = { name: data.name, code: data.code }
+    await api.put<any>(`/projects/${id}/`, payload)
+    return ProjectService.getProject(id)
   },
 
   deleteProject: async (id: string) => {

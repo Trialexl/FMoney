@@ -25,11 +25,14 @@ export default function BudgetForm({ budget, isEdit = false }: BudgetFormProps) 
   const router = useRouter()
   
   // Form fields
+  const [number, setNumber] = useState(budget?.number || "")
   const [amount, setAmount] = useState(budget?.amount?.toString() || "")
   const [date, setDate] = useState(budget?.date ? formatDateForInput(new Date(budget.date)) : formatDateForInput())
+  const [dateStart, setDateStart] = useState((budget as any)?.date_start ? formatDateForInput(new Date((budget as any).date_start)) : "")
   const [description, setDescription] = useState(budget?.description || "")
   const [type, setType] = useState<'income' | 'expense'>(budget?.type || 'expense')
   const [cashFlowItemId, setCashFlowItemId] = useState(budget?.cash_flow_item || "")
+  const [amountMonth, setAmountMonth] = useState<string>(String((budget as any)?.amount_month ?? ""))
 
   // Reference data
   const [cashFlowItems, setCashFlowItems] = useState<CashFlowItem[]>([])
@@ -71,12 +74,15 @@ export default function BudgetForm({ budget, isEdit = false }: BudgetFormProps) 
       }
 
       const budgetData: Partial<Budget> = {
+        number: number || undefined,
         amount: parseFloat(amount),
         date,
+        ...(dateStart ? { date_start: dateStart } : {} as any),
         description: description || undefined,
         type,
         cash_flow_item: cashFlowItemId
       }
+      if (amountMonth) (budgetData as any).amount_month = parseInt(amountMonth)
 
       if (isEdit && budget) {
         await BudgetService.updateBudget(budget.id, budgetData)
@@ -127,6 +133,17 @@ export default function BudgetForm({ budget, isEdit = false }: BudgetFormProps) 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
+            <Label htmlFor="number">Номер</Label>
+            <input
+              id="number"
+              type="text"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              placeholder="Номер документа"
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="amount" className="required">Сумма</Label>
             <input
               id="amount"
@@ -150,6 +167,31 @@ export default function BudgetForm({ budget, isEdit = false }: BudgetFormProps) 
               onChange={(e) => setDate(e.target.value)}
               required
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="dateStart">Дата начала периода</Label>
+            <input
+              id="dateStart"
+              type="date"
+              value={dateStart}
+              onChange={(e) => setDateStart(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="amountMonth">Сумма в месяц</Label>
+            <input
+              id="amountMonth"
+              type="number"
+              min="0"
+              value={amountMonth}
+              onChange={(e) => setAmountMonth(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              placeholder="Напр. 30000"
             />
           </div>
         </div>

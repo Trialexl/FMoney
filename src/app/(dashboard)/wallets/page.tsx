@@ -70,7 +70,10 @@ export default function WalletsPage() {
                   <CardTitle>{wallet.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{wallet.description || "Нет описания"}</p>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    {wallet.code && <p>Код: {wallet.code}</p>}
+                    {wallet.hidden !== undefined && <p>Скрыт: {wallet.hidden ? 'Да' : 'Нет'}</p>}
+                  </div>
                 </CardContent>
                 <CardFooter className="flex justify-between bg-muted/50 p-4">
                   <Link href={`/wallets/${wallet.id}`}>

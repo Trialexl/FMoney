@@ -124,10 +124,16 @@ export default function WalletDetailPage({ params }: { params: { id: string } })
                 <span className="text-sm text-muted-foreground">Создан:</span>
                 <p>{new Date(wallet.created_at).toLocaleDateString('ru-RU')}</p>
               </div>
-              {wallet.description && (
+              {wallet.code && (
                 <div>
-                  <span className="text-sm text-muted-foreground">Описание:</span>
-                  <p>{wallet.description}</p>
+                  <span className="text-sm text-muted-foreground">Код:</span>
+                  <p>{wallet.code}</p>
+                </div>
+              )}
+              {wallet.hidden !== undefined && (
+                <div>
+                  <span className="text-sm text-muted-foreground">Скрыт:</span>
+                  <p>{wallet.hidden ? 'Да' : 'Нет'}</p>
                 </div>
               )}
             </div>

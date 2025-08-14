@@ -55,21 +55,16 @@ export default function ProjectsPage() {
     }
   }
   
-  const toggleProjectStatus = async (project: Project) => {
-    try {
-      await ProjectService.updateProject(project.id, { is_active: !project.is_active })
-      fetchProjects()
-    } catch (err: any) {
-      setError("Ошибка при изменении статуса проекта: " + (err.message || "Неизвестная ошибка"))
-    }
+  const toggleProjectStatus = async (_project: Project) => {
+    // API не поддерживает статус; ничего не делаем
+    return
   }
   
   // Filter projects based on search
   const filteredProjects = projects.filter(project => {
     // Filter by search term
     const searchMatch = searchTerm === "" || 
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      project.name.toLowerCase().includes(searchTerm.toLowerCase())
     
     return searchMatch
   })
@@ -173,11 +168,7 @@ export default function ProjectsPage() {
                   <CardHeader className="flex flex-row justify-between items-start space-y-0 gap-2 pb-2">
                     <div>
                       <CardTitle className="text-lg">{project.name}</CardTitle>
-                      {project.is_active ? (
-                        <Badge variant="success" className="mt-1">Активен</Badge>
-                      ) : (
-                        <Badge variant="secondary" className="mt-1">Неактивен</Badge>
-                      )}
+                      <Badge variant="secondary" className="mt-1">Проект</Badge>
                     </div>
                     <div className="flex gap-1">
                       <Button
@@ -185,20 +176,15 @@ export default function ProjectsPage() {
                         size="sm"
                         className="h-8 w-8 p-0"
                         onClick={() => toggleProjectStatus(project)}
-                        title={project.is_active ? "Деактивировать" : "Активировать"}
+                        title="Изменение статуса недоступно"
+                        disabled
                       >
-                        {project.is_active ? (
-                          <XCircleIcon className="h-4 w-4 text-gray-500" />
-                        ) : (
-                          <CheckCircleIcon className="h-4 w-4 text-green-500" />
-                        )}
+                        <XCircleIcon className="h-4 w-4 text-gray-400" />
                       </Button>
                     </div>
                   </CardHeader>
                   <CardContent className="pb-3">
-                    {project.description && (
-                      <p className="text-muted-foreground text-sm mb-3">{project.description}</p>
-                    )}
+                    {/* description отсутствует в API */}
                     <p className="text-xs text-muted-foreground">
                       Создан: {formatDate(project.created_at)}
                     </p>

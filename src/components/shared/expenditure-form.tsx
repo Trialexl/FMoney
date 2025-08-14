@@ -28,6 +28,7 @@ export default function ExpenditureForm({ expenditure, isEdit = false }: Expendi
   const defaultWalletId = searchParams.get("wallet") || expenditure?.wallet || ""
   
   // Form fields
+  const [number, setNumber] = useState(expenditure?.number || "")
   const [amount, setAmount] = useState(expenditure?.amount?.toString() || "")
   const [date, setDate] = useState(expenditure?.date ? formatDateForInput(new Date(expenditure.date)) : formatDateForInput())
   const [description, setDescription] = useState(expenditure?.description || "")
@@ -86,6 +87,7 @@ export default function ExpenditureForm({ expenditure, isEdit = false }: Expendi
       }
 
       const expenditureData: Partial<Expenditure> = {
+        number: number || undefined,
         amount: parseFloat(amount),
         date,
         description: description || undefined,
@@ -125,6 +127,17 @@ export default function ExpenditureForm({ expenditure, isEdit = false }: Expendi
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="number">Номер</Label>
+            <input
+              id="number"
+              type="text"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              placeholder="Номер документа"
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="amount" className="required">Сумма</Label>
             <input
@@ -235,14 +248,14 @@ export default function ExpenditureForm({ expenditure, isEdit = false }: Expendi
             <div className="text-sm text-muted-foreground">Загрузка проектов...</div>
           ) : (
             <Select
-              value={projectId}
-              onValueChange={setProjectId}
+              value={projectId || "none"}
+              onValueChange={(value) => setProjectId(value === "none" ? "" : value)}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Выберите проект" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Не указано</SelectItem>
+                <SelectItem value="none">Не указано</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}

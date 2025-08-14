@@ -68,7 +68,7 @@ export default function ExpendituresPage() {
       const categories = await CashFlowItemService.getCashFlowItems()
       const categoryMapping: Record<string, string> = {}
       categories.forEach(category => {
-        categoryMapping[category.id] = category.name
+        categoryMapping[category.id] = category.name || "—"
       })
       setCategoryMap(categoryMapping)
       

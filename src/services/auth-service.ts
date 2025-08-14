@@ -43,12 +43,18 @@ export const AuthService = {
   },
 
   getProfile: async () => {
-    const response = await api.get<UserProfile>("/profile/")
-    return response.data
+    // API: GET /api/v1/profile/ возвращает массив профилей текущего пользователя
+    const { data } = await api.get<UserProfile[] | UserProfile>("/profile/")
+    const profile = Array.isArray(data) ? data[0] : data
+    return profile as UserProfile
   },
 
-  updateProfile: async (data: Partial<UserProfile>) => {
-    const response = await api.put<UserProfile>("/profile/", data)
+  updateProfile: async (data: Partial<UserProfile> & { id?: string }) => {
+    if (!data.id) {
+      const current = await AuthService.getProfile()
+      data.id = (current as any).id
+    }
+    const response = await api.put<UserProfile>(`/profile/${data.id}/`, data)
     return response.data
   }
 }

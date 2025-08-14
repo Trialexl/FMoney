@@ -25,6 +25,7 @@ export default function TransferForm({ transfer, isEdit = false }: TransferFormP
   const router = useRouter()
   
   // Form fields
+  const [number, setNumber] = useState(transfer?.number || "")
   const [amount, setAmount] = useState(transfer?.amount?.toString() || "")
   const [date, setDate] = useState(transfer?.date ? formatDateForInput(new Date(transfer.date)) : formatDateForInput())
   const [description, setDescription] = useState(transfer?.description || "")
@@ -105,6 +106,7 @@ export default function TransferForm({ transfer, isEdit = false }: TransferFormP
       }
 
       const transferData: Partial<Transfer> = {
+        number: number || undefined,
         amount: parseFloat(amount),
         date,
         description: description || undefined,
@@ -142,6 +144,17 @@ export default function TransferForm({ transfer, isEdit = false }: TransferFormP
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="number">Номер</Label>
+            <input
+              id="number"
+              type="text"
+              value={number}
+              onChange={(e) => setNumber(e.target.value)}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+              placeholder="Номер документа"
+            />
+          </div>
           <div className="space-y-2">
             <Label htmlFor="amount" className="required">Сумма</Label>
             <input

@@ -13,7 +13,8 @@ interface WalletFormProps {
 export default function WalletForm({ wallet, isEdit = false }: WalletFormProps) {
   const router = useRouter()
   const [name, setName] = useState(wallet?.name || "")
-  const [description, setDescription] = useState(wallet?.description || "")
+  const [code, setCode] = useState(wallet?.code || "")
+  const [hidden, setHidden] = useState<boolean>(wallet?.hidden ?? false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -24,9 +25,9 @@ export default function WalletForm({ wallet, isEdit = false }: WalletFormProps) 
 
     try {
       if (isEdit && wallet) {
-        await WalletService.updateWallet(wallet.id, { name, description })
+        await WalletService.updateWallet(wallet.id, { name, code, hidden })
       } else {
-        await WalletService.createWallet({ name, description })
+        await WalletService.createWallet({ name, code, hidden })
       }
       router.push("/wallets")
     } catch (err: any) {
@@ -68,18 +69,25 @@ export default function WalletForm({ wallet, isEdit = false }: WalletFormProps) 
         </div>
         
         <div>
-          <label htmlFor="description" className="block text-sm font-medium mb-1">
-            Описание (необязательно)
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
+          <label htmlFor="code" className="block text-sm font-medium mb-1">Код (необязательно)</label>
+          <input
+            id="code"
+            type="text"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Введите описание кошелька"
+            placeholder="Код"
           />
         </div>
+
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={hidden}
+            onChange={(e) => setHidden(e.target.checked)}
+          />
+          Скрыть кошелек
+        </label>
 
         <div className="flex space-x-4">
           <Button
