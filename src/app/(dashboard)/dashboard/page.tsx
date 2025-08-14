@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { WalletService, Wallet } from "@/services/wallet-service"
 import { ExpenditureService, ReceiptService, Expenditure, Receipt } from "@/services/financial-operations-service"
 import { Card } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 
 export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -11,6 +12,8 @@ export default function DashboardPage() {
   const [recentExpenses, setRecentExpenses] = useState<Expenditure[]>([])
   const [recentIncomes, setRecentIncomes] = useState<Receipt[]>([])
   const [totalBalance, setTotalBalance] = useState<number>(0)
+  const [walletBalances, setWalletBalances] = useState<Record<string, number>>({})
+  const [showAllWallets, setShowAllWallets] = useState<boolean>(false)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -20,16 +23,19 @@ export default function DashboardPage() {
         const walletsData = await WalletService.getWallets()
         setWallets(walletsData)
 
-        // Calculate total balance
+        // Calculate total balance and per-wallet balances
+        const balancesMap: Record<string, number> = {}
         let total = 0
         for (const wallet of walletsData) {
           try {
             const balanceData = await WalletService.getWalletBalance(wallet.id)
+            balancesMap[wallet.id] = balanceData.balance
             total += balanceData.balance
           } catch (error) {
             console.error(`Error fetching balance for wallet ${wallet.id}:`, error)
           }
         }
+        setWalletBalances(balancesMap)
         setTotalBalance(total)
 
         // Fetch recent expenses and incomes
@@ -77,6 +83,41 @@ export default function DashboardPage() {
           <Card className="p-6">
             <h3 className="text-lg font-medium mb-2">Последние операции</h3>
             <p className="text-3xl font-bold">{recentExpenses.length + recentIncomes.length}</p>
+          </Card>
+
+          {/* Wallet Balances (minimal list) */}
+          <Card className="p-6 md:col-span-3">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">Балансы кошельков</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAllWallets((v) => !v)}
+              >
+                {showAllWallets ? 'Только нескрытые' : 'Показать все'}
+              </Button>
+            </div>
+            {(() => {
+              const list = showAllWallets ? wallets : wallets.filter((w) => !w.hidden)
+              if (list.length === 0) {
+                return <p className="text-sm text-muted-foreground">Нет кошельков для отображения</p>
+              }
+              return (
+                <div className="divide-y rounded-md border">
+                  {list.map((wallet) => (
+                    <div key={wallet.id} className="flex items-center justify-between px-4 py-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{wallet.name}</span>
+                        {wallet.hidden && (
+                          <span className="text-xs text-muted-foreground">(скрыт)</span>
+                        )}
+                      </div>
+                      <span className="font-medium">{(walletBalances[wallet.id] ?? 0).toLocaleString('ru-RU')} ₽</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </Card>
           
           {/* Recent Expenses */}
