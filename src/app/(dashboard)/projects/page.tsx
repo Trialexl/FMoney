@@ -98,7 +98,7 @@ export default function ProjectsPage() {
           <CardTitle className="text-lg">Фильтры</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label htmlFor="search" className="block text-sm font-medium mb-1">Поиск</label>
               <div className="relative">
@@ -109,7 +109,7 @@ export default function ProjectsPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Поиск по названию или описанию..."
-                  className="pl-9 w-full border rounded-md px-3 py-2"
+                  className="pl-9 w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                 />
               </div>
             </div>
@@ -142,7 +142,7 @@ export default function ProjectsPage() {
             <div>
               <label className="block text-sm font-medium mb-1">Сортировка</label>
               <Select value={sortBy} onValueChange={(v: 'name' | 'created_at') => setSortBy(v)}>
-                <SelectTrigger>
+                <SelectTrigger className="h-9">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

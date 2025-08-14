@@ -162,7 +162,7 @@ export default function ExpendituresPage() {
           <CardTitle className="text-lg">Фильтры</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label htmlFor="search" className="block text-sm font-medium mb-1">Поиск</label>
               <div className="relative">
@@ -173,7 +173,7 @@ export default function ExpendituresPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Поиск по описанию, кошельку, категории..."
-                  className="pl-9 w-full border rounded-md px-3 py-2"
+                  className="pl-9 w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                 />
               </div>
             </div>
@@ -184,7 +184,7 @@ export default function ExpendituresPage() {
                 id="dateFrom"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
               />
             </div>
             <div>
@@ -194,7 +194,7 @@ export default function ExpendituresPage() {
                 id="dateTo"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
               />
             </div>
             <div>
@@ -224,11 +224,11 @@ export default function ExpendituresPage() {
               </div>
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
             <div>
               <label className="block text-sm font-medium mb-1">Кошелек</label>
               <Select value={selectedWalletId} onValueChange={setSelectedWalletId}>
-                <SelectTrigger>
+                <SelectTrigger className="h-9">
                   <SelectValue placeholder="Все кошельки" />
                 </SelectTrigger>
                 <SelectContent>
@@ -241,7 +241,7 @@ export default function ExpendituresPage() {
             <div>
               <label className="block text-sm font-medium mb-1">Категория</label>
               <Select value={selectedCategoryId} onValueChange={setSelectedCategoryId}>
-                <SelectTrigger>
+                <SelectTrigger className="h-9">
                   <SelectValue placeholder="Все категории" />
                 </SelectTrigger>
                 <SelectContent>
@@ -258,7 +258,7 @@ export default function ExpendituresPage() {
                 id="amountMin"
                 value={amountMin}
                 onChange={(e) => setAmountMin(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                 placeholder="0"
                 min="0"
               />
@@ -270,7 +270,7 @@ export default function ExpendituresPage() {
                 id="amountMax"
                 value={amountMax}
                 onChange={(e) => setAmountMax(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full h-9 px-3 rounded-md border border-input bg-background text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                 placeholder="∞"
                 min="0"
               />
