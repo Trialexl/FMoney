@@ -35,6 +35,7 @@
 
 ## Reports & Analytics
 - [x] Cash flow summary dashboard
+- [x] Dashboard: список балансов кошельков (минималистично, по умолчанию нескрытые, тумблер "Показать все")
 - [x] Budget execution reports
 - [x] Financial charts and graphs
 - [x] Balance overview by wallet
