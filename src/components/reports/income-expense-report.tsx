@@ -234,7 +234,7 @@ export default function IncomeExpenseReport({ dateFrom, dateTo }: IncomeExpenseR
                   </div>
                 )}
                 colors={{ scheme: 'category10' }}
-                legends={[{ anchor: 'top-right', direction: 'column', itemWidth: 80, itemHeight: 16, translateX: 20 }]}
+                legends={[{ anchor: 'top-right', direction: 'column', itemWidth: 80, itemHeight: 16, translateX: 20, dataFrom: 'keys' }]}
               />
             </div>
           )}
