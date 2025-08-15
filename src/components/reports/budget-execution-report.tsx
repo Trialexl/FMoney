@@ -11,17 +11,7 @@ import {
   Receipt
 } from "@/services/financial-operations-service"
 import { CashFlowItemService } from "@/services/cash-flow-item-service"
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer,
-  Cell
-} from "recharts"
+import { ResponsiveBar } from "@nivo/bar"
 import { formatCurrency } from "@/lib/formatters"
 import { Badge } from "@/components/ui/badge"
 import { AlertCircleIcon, CheckCircleIcon, XCircleIcon } from "lucide-react"
@@ -358,26 +348,23 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
               </div>
             ) : incomeBudgetData.length > 0 ? (
               <div className="h-80" ref={incomeChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={incomeBudgetData}
-                    layout="vertical"
-                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis 
-                      type="category" 
-                      dataKey="name" 
-                      width={100} 
-                      tick={{ fontSize: 12 }} 
-                    />
-                    <Tooltip formatter={formatTooltip} />
-                    <Legend />
-                    <Bar dataKey="budget" name="План" fill="#3b82f6" />
-                    <Bar dataKey="actual" name="Факт" fill="#4ade80" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <ResponsiveBar
+                  data={incomeBudgetData}
+                  keys={["budget", "actual"]}
+                  indexBy="name"
+                  margin={{ top: 20, right: 20, bottom: 60, left: 120 }}
+                  padding={0.3}
+                  layout="horizontal"
+                  groupMode="grouped"
+                  axisBottom={{ tickSize: 0, tickPadding: 8 }}
+                  axisLeft={{ tickSize: 0, tickPadding: 8 }}
+                  colors={{ scheme: 'category10' }}
+                  tooltip={({ id, value, indexValue }) => (
+                    <div className="rounded border bg-background px-2 py-1 text-xs">
+                      {String(id)} - {String(indexValue)}: {formatCurrency(Number(value))}
+                    </div>
+                  )}
+                />
               </div>
             ) : (
               <div className="text-center py-8">
@@ -410,26 +397,23 @@ export default function BudgetExecutionReport({ dateFrom, dateTo }: BudgetExecut
               </div>
             ) : expenseBudgetData.length > 0 ? (
               <div className="h-80" ref={expenseChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={expenseBudgetData}
-                    layout="vertical"
-                    margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis 
-                      type="category" 
-                      dataKey="name" 
-                      width={100} 
-                      tick={{ fontSize: 12 }} 
-                    />
-                    <Tooltip formatter={formatTooltip} />
-                    <Legend />
-                    <Bar dataKey="budget" name="План" fill="#3b82f6" />
-                    <Bar dataKey="actual" name="Факт" fill="#f87171" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <ResponsiveBar
+                  data={expenseBudgetData}
+                  keys={["budget", "actual"]}
+                  indexBy="name"
+                  margin={{ top: 20, right: 20, bottom: 60, left: 120 }}
+                  padding={0.3}
+                  layout="horizontal"
+                  groupMode="grouped"
+                  axisBottom={{ tickSize: 0, tickPadding: 8 }}
+                  axisLeft={{ tickSize: 0, tickPadding: 8 }}
+                  colors={{ scheme: 'category10' }}
+                  tooltip={({ id, value, indexValue }) => (
+                    <div className="rounded border bg-background px-2 py-1 text-xs">
+                      {String(id)} - {String(indexValue)}: {formatCurrency(Number(value))}
+                    </div>
+                  )}
+                />
               </div>
             ) : (
               <div className="text-center py-8">

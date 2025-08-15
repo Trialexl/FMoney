@@ -3,14 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { WalletService } from "@/services/wallet-service"
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip,
-  Legend
-} from "recharts"
+import { ResponsivePie } from "@nivo/pie"
 import { formatCurrency } from "@/lib/formatters"
 import { Wallet as WalletIcon, ArrowUp, ArrowDown } from "lucide-react"
 import ExportReportButtons from "./export-report-buttons"
@@ -181,34 +174,28 @@ export default function WalletBalancesReport() {
               />
             </div>
             
-            {isLoading ? (
+              {isLoading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="text-lg">Загрузка данных...</div>
               </div>
-            ) : positiveWallets.length > 0 ? (
-              <div className="h-80" ref={pieChartRef}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={positiveWallets}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="balance"
-                      nameKey="name"
-                      label={({name, value, percent}) => `${name}: ${percent.toFixed(0)}%`}
-                    >
-                      {positiveWallets.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={formatTooltip} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+              ) : positiveWallets.length > 0 ? (
+                <div className="h-80" ref={pieChartRef}>
+                  <ResponsivePie
+                    data={positiveWallets.map((w) => ({ id: w.name, label: w.name, value: w.balance }))}
+                    margin={{ top: 20, right: 120, bottom: 20, left: 20 }}
+                    innerRadius={0.5}
+                    padAngle={1}
+                    cornerRadius={3}
+                    activeOuterRadiusOffset={8}
+                    tooltip={({ datum }) => (
+                      <div className="rounded border bg-background px-2 py-1 text-xs">
+                        {datum.label}: {formatCurrency(Number(datum.value))}
+                      </div>
+                    )}
+                    legends={[{ anchor: 'right', direction: 'column', translateX: 100, itemWidth: 100, itemHeight: 16 }]}
+                    colors={{ scheme: 'category10' }}
+                  />
+                </div>
             ) : (
               <div className="text-center py-8">
                 <p className="text-muted-foreground">Нет кошельков с положительным балансом</p>

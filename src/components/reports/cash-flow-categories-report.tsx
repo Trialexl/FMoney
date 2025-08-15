@@ -4,20 +4,9 @@ import { useState, useEffect, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { ExpenditureService } from "@/services/financial-operations-service"
 import { CashFlowItemService } from "@/services/cash-flow-item-service"
-import { 
-  PieChart, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Tooltip,
-  Legend,
-  Treemap,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid
-} from "recharts"
+import { ResponsivePie } from "@nivo/pie"
+import { ResponsiveTreeMap } from "@nivo/treemap"
+import { ResponsiveBar } from "@nivo/bar"
 import { formatCurrency } from "@/lib/formatters"
 import { Button } from "@/components/ui/button"
 import ExportReportButtons from "./export-report-buttons"
@@ -139,9 +128,11 @@ export default function CashFlowCategoriesReport({ dateFrom, dateTo }: CashFlowC
     '#8b5cf6', '#7c3aed', '#6d28d9', '#5b21b6', '#4c1d95'
   ]
   
-  // Custom tooltip formatter
-  const formatTooltip = (value: number, name: string) => {
-    return [formatCurrency(value), name]
+  const pieData = categoryExpenses.map((c) => ({ id: c.name, label: c.name, value: c.amount }))
+  const barData = topCategories.map((c) => ({ name: c.name, amount: c.amount }))
+  const treeData = {
+    name: "root",
+    children: categoryExpenses.map((c) => ({ name: c.name, value: c.amount })),
   }
 
   return (
@@ -216,64 +207,65 @@ export default function CashFlowCategoriesReport({ dateFrom, dateTo }: CashFlowC
             </div>
           ) : categoryExpenses.length > 0 ? (
             <div className="h-[500px]" ref={chartRef}>
-              <ResponsiveContainer width="100%" height="100%">
-                {viewType === "pie"
-                  ? (
-                    <PieChart>
-                      <Pie
-                        data={categoryExpenses}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={180}
-                        fill="#8884d8"
-                        dataKey="amount"
-                        nameKey="name"
-                        label={({name, percent}) => `${name}: ${percent.toFixed(0)}%`}
-                      >
-                        {categoryExpenses.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={formatTooltip} />
-                      <Legend layout="vertical" align="right" verticalAlign="middle" />
-                    </PieChart>
-                  )
-                  : viewType === "treemap"
-                  ? (
-                    <Treemap
-                      data={categoryExpenses}
-                      dataKey="amount"
-                      nameKey="name"
-                      aspectRatio={4/3}
-                      stroke="#fff"
-                      fill="#8884d8"
-                    >
-                      {categoryExpenses.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                      <Tooltip formatter={formatTooltip} />
-                    </Treemap>
-                  )
-                  : (
-                    <BarChart
-                      data={topCategories}
-                      layout="vertical"
-                      margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis 
-                        type="category" 
-                        dataKey="name" 
-                        width={100} 
-                        tick={{ fontSize: 12 }} 
-                      />
-                      <Tooltip formatter={formatTooltip} />
-                      <Bar dataKey="amount" fill="#f87171" />
-                    </BarChart>
+              {viewType === "pie" && (
+                <ResponsivePie
+                  data={pieData}
+                  margin={{ top: 20, right: 120, bottom: 20, left: 20 }}
+                  innerRadius={0.5}
+                  padAngle={1}
+                  cornerRadius={3}
+                  activeOuterRadiusOffset={8}
+                  colors={{ scheme: 'category10' }}
+                  tooltip={({ datum }) => (
+                    <div className="rounded border bg-background px-2 py-1 text-xs">
+                      {datum.label}: {formatCurrency(Number(datum.value))}
+                    </div>
                   )}
-              </ResponsiveContainer>
+                  legends={[
+                    {
+                      anchor: 'right',
+                      direction: 'column',
+                      translateX: 100,
+                      itemWidth: 100,
+                      itemHeight: 18,
+                    },
+                  ]}
+                />
+              )}
+              {viewType === "treemap" && (
+                <ResponsiveTreeMap
+                  data={treeData as any}
+                  identity="name"
+                  value="value"
+                  innerPadding={3}
+                  outerPadding={3}
+                  labelSkipSize={12}
+                  label={(n) => `${n.id}`}
+                  tooltip={({ node }) => (
+                    <div className="rounded border bg-background px-2 py-1 text-xs">
+                      {String(node.id)}: {formatCurrency(Number(node.value))}
+                    </div>
+                  )}
+                />
+              )}
+              {viewType === "bar" && (
+                <ResponsiveBar
+                  data={barData}
+                  keys={["amount"]}
+                  indexBy="name"
+                  margin={{ top: 20, right: 20, bottom: 60, left: 120 }}
+                  padding={0.3}
+                  layout="horizontal"
+                  axisBottom={{ tickSize: 0, tickPadding: 8 }}
+                  axisLeft={{ tickSize: 0, tickPadding: 8 }}
+                  tooltip={({ value, indexValue }) => (
+                    <div className="rounded border bg-background px-2 py-1 text-xs">
+                      {String(indexValue)}: {formatCurrency(Number(value))}
+                    </div>
+                  )}
+                  colors={{ scheme: 'red_yellow_blue' }}
+                />
+              )}
             </div>
           ) : (
             <div className="text-center py-8">

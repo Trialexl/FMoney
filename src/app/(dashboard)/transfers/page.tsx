@@ -130,6 +130,7 @@ export default function TransfersPage() {
       )}
       
       {/* Filters */}
+      <div className="inline-block origin-top-left scale-75 mb-3">
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-lg">Фильтры</CardTitle>
@@ -228,6 +229,7 @@ export default function TransfersPage() {
           </div>
         </CardContent>
       </Card>
+      </div>
 
       {isLoading ? (
         <div className="flex justify-center items-center h-64">

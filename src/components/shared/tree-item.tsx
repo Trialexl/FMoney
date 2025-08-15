@@ -79,9 +79,9 @@ export function TreeItem({ item, onDelete, level }: TreeItemProps) {
 
       {hasChildren && isExpanded && (
         <div className="space-y-1">
-          {item.children!.map(child => (
+          {item.children!.map((child, idx) => (
             <TreeItem
-              key={child.id}
+              key={`${child.id}-${idx}`}
               item={child}
               onDelete={onDelete}
               level={level + 1}

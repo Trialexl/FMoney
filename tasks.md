@@ -46,6 +46,7 @@
 - [ ] Notifications for budget limits
 - [x] Mobile responsive design
 - [x] Dark/light theme support
+- [ ] Настройки пользователя: выбор цветовых схем для графиков
  - [ ] Performance optimization
   - [x] Enhanced filtering and search functionality
   - [x] Copy/duplicate functionality for all entities

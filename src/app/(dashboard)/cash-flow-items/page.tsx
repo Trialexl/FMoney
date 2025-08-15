@@ -1,15 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CashFlowItemService, CashFlowItemHierarchy } from "@/services/cash-flow-item-service"
+import { CashFlowItemService, CashFlowItem } from "@/services/cash-flow-item-service"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { PlusIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react"
+import { PlusIcon, Edit2Icon, TrashIcon } from "lucide-react"
 import Link from "next/link"
-import { TreeItem } from "@/components/shared/tree-item"
 
 export default function CashFlowItemsPage() {
-  const [items, setItems] = useState<CashFlowItemHierarchy[]>([])
+  const [items, setItems] = useState<CashFlowItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -17,12 +16,22 @@ export default function CashFlowItemsPage() {
     setIsLoading(true)
     setError(null)
     try {
-      const data = await CashFlowItemService.getCashFlowItemHierarchy()
+      const data = await CashFlowItemService.getCashFlowItems()
       setItems(data)
     } catch (err: any) {
       setError("Ошибка при загрузке статей движения средств: " + (err.message || "Неизвестная ошибка"))
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleDelete = async (id: string, name: string | null) => {
+    if (!confirm(`Удалить статью "${name || "без названия"}"?`)) return
+    try {
+      await CashFlowItemService.deleteCashFlowItem(id)
+      fetchItems()
+    } catch (e) {
+      alert("Не удалось удалить статью. Возможно, она используется в операциях.")
     }
   }
 
@@ -54,19 +63,42 @@ export default function CashFlowItemsPage() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>Иерархия статей</CardTitle>
+            <CardTitle>Список статей</CardTitle>
           </CardHeader>
           <CardContent>
             {items.length > 0 ? (
-              <div className="space-y-2">
-                {items.map(item => (
-                  <TreeItem
-                    key={item.id}
-                    item={item}
-                    onDelete={fetchItems}
-                    level={0}
-                  />
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-muted/50 text-left">
+                      <th className="px-4 py-2">Название</th>
+                      <th className="px-4 py-2">Код</th>
+                      <th className="px-4 py-2">В бюджете</th>
+                      <th className="px-4 py-2 text-center">Действия</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((item) => (
+                      <tr key={item.id} className="border-b hover:bg-muted/30">
+                        <td className="px-4 py-2 font-medium">{item.name || "—"}</td>
+                        <td className="px-4 py-2">{item.code || "—"}</td>
+                        <td className="px-4 py-2">{item.include_in_budget === true ? "Да" : item.include_in_budget === false ? "Нет" : "—"}</td>
+                        <td className="px-4 py-2">
+                          <div className="flex justify-center gap-2">
+                            <Link href={`/cash-flow-items/${item.id}/edit`}>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Edit2Icon className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDelete(item.id, item.name)}>
+                              <TrashIcon className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">

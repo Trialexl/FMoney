@@ -3,18 +3,8 @@
 import { useState, useEffect, useRef } from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { ReceiptService, ExpenditureService } from "@/services/financial-operations-service"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts"
+import { ResponsiveBar } from "@nivo/bar"
+import { ResponsiveLine } from "@nivo/line"
 import { formatCurrency } from "@/lib/formatters"
 import ExportReportButtons from "./export-report-buttons"
 import { exportFormatters } from "@/lib/export-utils"
@@ -229,24 +219,23 @@ export default function IncomeExpenseReport({ dateFrom, dateTo }: IncomeExpenseR
             </div>
           ) : (
             <div className="h-80" ref={barChartRef}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={barChartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey={viewType === "daily" ? "displayDate" : "displayMonth"} 
-                    angle={-45}
-                    textAnchor="end"
-                  />
-                  <YAxis />
-                  <Tooltip formatter={formatTooltip} />
-                  <Legend />
-                  <Bar dataKey="income" name="Доходы" fill="#4ade80" />
-                  <Bar dataKey="expense" name="Расходы" fill="#f87171" />
-                </BarChart>
-              </ResponsiveContainer>
+              <ResponsiveBar
+                data={barChartData}
+                keys={["income", "expense"]}
+                indexBy={viewType === "daily" ? "displayDate" : "displayMonth"}
+                margin={{ top: 20, right: 20, bottom: 60, left: 40 }}
+                padding={0.3}
+                groupMode="grouped"
+                axisBottom={{ tickSize: 0, tickPadding: 8, renderTick: undefined, tickRotation: -45 }}
+                axisLeft={{ tickSize: 0, tickPadding: 8 }}
+                tooltip={({ value, id }) => (
+                  <div className="rounded border bg-background px-2 py-1 text-xs">
+                    {String(id)}: {formatCurrency(Number(value))}
+                  </div>
+                )}
+                colors={{ scheme: 'category10' }}
+                legends={[{ anchor: 'top-right', direction: 'column', itemWidth: 80, itemHeight: 16, translateX: 20 }]}
+              />
             </div>
           )}
         </CardContent>
@@ -265,30 +254,26 @@ export default function IncomeExpenseReport({ dateFrom, dateTo }: IncomeExpenseR
             </div>
           ) : (
             <div className="h-80" ref={lineChartRef}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={lineChartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    dataKey={viewType === "daily" ? "displayDate" : "displayMonth"}
-                    angle={-45}
-                    textAnchor="end"
-                  />
-                  <YAxis />
-                  <Tooltip formatter={formatTooltip} />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="balance" 
-                    name="Баланс" 
-                    stroke="#2563eb" 
-                    strokeWidth={2}
-                    dot={{ stroke: '#2563eb', strokeWidth: 2, r: 4 }} 
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <ResponsiveLine
+                data={[{
+                  id: 'Баланс',
+                  data: lineChartData.map((d) => ({ x: viewType === 'daily' ? d.displayDate : d.displayMonth, y: d.balance })),
+                }]}
+                margin={{ top: 20, right: 20, bottom: 60, left: 40 }}
+                xScale={{ type: 'point' }}
+                yScale={{ type: 'linear', stacked: false }}
+                axisBottom={{ tickSize: 0, tickPadding: 8, tickRotation: -45 }}
+                axisLeft={{ tickSize: 0, tickPadding: 8 }}
+                curve="monotoneX"
+                colors={{ scheme: 'category10' }}
+                pointSize={6}
+                useMesh
+                tooltip={({ point }) => (
+                  <div className="rounded border bg-background px-2 py-1 text-xs">
+                    {String(point.data.x)}: {formatCurrency(Number(point.data.y))}
+                  </div>
+                )}
+              />
             </div>
           )}
         </CardContent>
